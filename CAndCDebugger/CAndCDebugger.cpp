@@ -107,6 +107,8 @@ int main()
 		{
 			std::string command_line;
 			ia >> command_line;
+			//you may need to update this for the included events_in.txt if your steam install is not in program files x86
+			//e.g."-CD\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\CnCRemastered\\DATA\\CNCDATA\\TIBERIAN_DAWN\\CD1\""
 			CNC_Init(command_line.c_str(), Callback);
 			continue;
 		}

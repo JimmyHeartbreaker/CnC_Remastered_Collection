@@ -1,4 +1,4 @@
-# CnC_Remastered_Collection
+# CAndCDebugger
 
 This fork is a debugging tool to replay C&C scenarios through a console app. This can be a lot handier than launching the whole game etc etc.
 

@@ -1,6 +1,6 @@
 # CAndCDebugger
 
-This fork is a debugging tool to replay C&C scenarios through a console app. This can be a lot handier than launching the whole game etc etc.
+A debugging tool to replay C&C scenarios through a console app. This can be a lot handier than launching the whole game etc etc.
 
 So far only tested with Tiberian Dawn campaign.
 

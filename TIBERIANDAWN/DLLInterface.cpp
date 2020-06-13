@@ -35,9 +35,16 @@
 #include "Gadget.h"
 #include "defines.h" // VOC_COUNT, VOX_COUNT
 #include "SidebarGlyphx.h"
+#include <fstream>
+#include <boost/archive/tmpdir.hpp>
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
-
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 
 /*
 ** Externs
@@ -50,6 +57,8 @@ extern bool Color_Cycle(void);
 
 
 
+std::ofstream* events_out_stream;
+boost::archive::text_oarchive* events_out_archive;
 
 /*
 ** Prototypes and constants
@@ -57,9 +66,7 @@ extern bool Color_Cycle(void);
 bool Debug_Write_Shape_Type(const ObjectTypeClass *type, int shapenum);
 bool Debug_Write_Shape(const char *file_name, void const * shapefile, int shapenum, int flags = 0, void const * ghostdata = NULL);
 
-typedef void (__cdecl* CNC_Event_Callback_Type)(const EventCallbackStruct &event);
-typedef unsigned __int64 uint64;
-typedef __int64 int64;
+
 
 
 
@@ -118,36 +125,6 @@ typedef enum {
 ** 
 ** 
 */
-extern "C" __declspec(dllexport) unsigned int __cdecl CNC_Version(unsigned int version_in);
-extern "C" __declspec(dllexport) void __cdecl CNC_Init(const char *command_line, CNC_Event_Callback_Type event_callback);
-extern "C" __declspec(dllexport) void __cdecl CNC_Config(const CNCRulesDataStruct& rules);
-extern "C" __declspec(dllexport) void __cdecl CNC_Add_Mod_Path(const char *mod_path);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Get_Visible_Page(unsigned char *buffer_in, unsigned int &width, unsigned int &height);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Get_Palette(unsigned char(&palette_in)[256][3]);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Start_Instance(int scenario_index, int build_level, const char *faction, const char *game_type, const char *content_directory, int sabotaged_structure, const char *override_map_name);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Start_Instance_Variation(int scenario_index, int scenario_variation, int scenario_direction, int build_level, const char *faction, const char *game_type, const char *content_directory, int sabotaged_structure, const char *override_map_name);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Start_Custom_Instance(const char* content_directory, const char* directory_path, const char* scenario_name, int build_level, bool multiplayer);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Advance_Instance(uint64 player_id);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Get_Game_State(GameStateRequestEnum state_type, uint64 player_id, unsigned char *buffer_in, unsigned int buffer_size);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Read_INI(int scenario_index, int scenario_variation, int scenario_direction, const char *content_directory, const char *override_map_name, char *ini_buffer, int _ini_buffer_size);
-extern "C" __declspec(dllexport) void __cdecl CNC_Set_Home_Cell(int x, int y, uint64 player_id);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Game_Request(GameRequestEnum request_type);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Game_Settings_Request(int health_bar_display_mode, int resource_bar_display_mode);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Input(InputRequestEnum mouse_event, unsigned char special_key_flags, uint64 player_id, int x1, int y1, int x2, int y2);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Structure_Request(StructureRequestEnum request_type, uint64 player_id, int object_id);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Unit_Request(UnitRequestEnum request_type, uint64 player_id);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Sidebar_Request(SidebarRequestEnum request_type, uint64 player_id, int buildable_type, int buildable_id, short cell_x, short cell_y);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_SuperWeapon_Request(SuperWeaponRequestEnum request_type, uint64 player_id, int buildable_type, int buildable_id, int x1, int y1);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_ControlGroup_Request(ControlGroupRequestEnum request_type, uint64 player_id, unsigned char control_group_index);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Debug_Request(DebugRequestEnum debug_request_type, uint64 player_id, const char *object_name, int x, int y, bool unshroud, bool enemy);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Set_Multiplayer_Data(int scenario_index, CNCMultiplayerOptionsStruct &game_options, int num_players, CNCPlayerInfoStruct *player_list, int max_players);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Clear_Object_Selection(uint64 player_id);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Select_Object(uint64 player_id, int object_type_id, int object_to_select_id);
-extern "C" __declspec(dllexport) bool __cdecl CNC_Save_Load(bool save, const char *file_path_and_name, const char *game_type);
-extern "C" __declspec(dllexport) void __cdecl CNC_Set_Difficulty(int difficulty);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Player_Switch_To_AI(uint64 player_id);
-extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Human_Team_Wins(uint64 player_id);
-extern "C" __declspec(dllexport) void __cdecl CNC_Start_Mission_Timer(int time);
 
 
 
@@ -461,6 +438,11 @@ void On_Achievement_Event(const HouseClass* player_ptr, const char *achievement_
 }			  
 
 
+bool event_output = true;
+extern "C" __declspec(dllexport) void __cdecl CNCDebug_DisableEventOutput()
+{
+	event_output = false;
+}
 
 
 /**************************************************************************************************
@@ -476,11 +458,19 @@ void On_Achievement_Event(const HouseClass* player_ptr, const char *achievement_
 **************************************************************************************************/
 extern "C" __declspec(dllexport) unsigned int __cdecl CNC_Version(unsigned int version_in)
 {
+
+	if (event_output)
+	{		
+		events_out_stream = new std::ofstream("events_in.txt", std::ofstream::out);
+		events_out_archive = new boost::archive::text_oarchive(*events_out_stream);
+		*events_out_archive << std::string("CNC_Version") << std::to_string(std::time(0)) << std::to_string(version_in);		
+	}
 	// Unreferenced, but potentially useful to know which version the server is expecting
 	version_in;
 
 	return CNC_DLL_API_VERSION;
 }
+
 
 
 
@@ -496,8 +486,13 @@ extern "C" __declspec(dllexport) unsigned int __cdecl CNC_Version(unsigned int v
 *
 * History: 1/3/2019 11:33AM - ST
 **************************************************************************************************/
-extern "C" __declspec(dllexport) void __cdecl CNC_Init(const char *command_line, CNC_Event_Callback_Type event_callback)
+extern "C" __declspec(dllexport) void __cdecl CNC_Init(const char* command_line, CNC_Event_Callback_Type event_callback)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Init") << std::to_string(std::time(0)) << std::string(command_line);
+	}
+
 	DLLExportClass::Set_Content_Directory(NULL);
 	
 	DLL_Startup(command_line);
@@ -523,6 +518,10 @@ extern "C" __declspec(dllexport) void __cdecl CNC_Init(const char *command_line,
 **************************************************************************************************/
 void DLL_Shutdown(void)
 {
+	if (event_output)
+	{
+		events_out_stream->close();
+	}
 	DLLExportClass::Shutdown();
 }
 
@@ -543,6 +542,11 @@ void DLL_Shutdown(void)
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Config(const CNCRulesDataStruct& rules)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Config") << std::to_string(std::time(0)) << rules;
+	}
+
 	DLLExportClass::Config(rules);
 }
 
@@ -562,6 +566,11 @@ extern "C" __declspec(dllexport) void __cdecl CNC_Config(const CNCRulesDataStruc
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Add_Mod_Path(const char *mod_path)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Add_Mod_Path") << std::to_string(std::time(0)) << std::string(mod_path);
+	}
+
 	DLLExportClass::Add_Mod_Path(mod_path);
 }
 
@@ -644,7 +653,6 @@ extern "C" __declspec(dllexport) bool __cdecl CNC_Get_Palette(unsigned char(&pal
 **************************************************************************************************/
 extern "C" __declspec(dllexport) bool __cdecl CNC_Set_Multiplayer_Data(int scenario_index, CNCMultiplayerOptionsStruct &game_options, int num_players, CNCPlayerInfoStruct *player_list, int max_players)
 {
-	
 	if (num_players <= 0) {
 		return false;
 	}
@@ -724,6 +732,7 @@ extern "C" __declspec(dllexport) bool __cdecl CNC_Set_Multiplayer_Data(int scena
 
 extern "C" __declspec(dllexport) bool __cdecl CNC_Clear_Object_Selection(uint64 player_id)
 {
+
 	if (!DLLExportClass::Set_Player_Context(player_id)) {
 		return false;
 	}
@@ -1143,6 +1152,14 @@ extern "C" __declspec(dllexport) bool __cdecl CNC_Read_INI(int scenario_index, i
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Set_Home_Cell(int x, int y, uint64 player_id)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Set_Home_Cell") << std::to_string(std::time(0))
+			<< std::to_string(x)
+			<< std::to_string(y)
+			<< std::to_string(player_id);
+	}
+	
 	DLLExportClass::Set_Home_Cell(x, y, player_id);
 }
 
@@ -1162,6 +1179,23 @@ extern "C" __declspec(dllexport) void __cdecl CNC_Set_Home_Cell(int x, int y, ui
 **************************************************************************************************/
 extern "C" __declspec(dllexport) bool __cdecl CNC_Start_Instance_Variation(int scenario_index, int scenario_variation, int scenario_direction, int build_level, const char *faction, const char *game_type, const char *content_directory, int sabotaged_structure, const char *override_map_name)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Start_Instance_Variation") << std::to_string(std::time(0))
+			<< std::to_string(scenario_index)
+			<< std::to_string(scenario_variation)
+			<< std::to_string(scenario_direction)
+			<< std::to_string(build_level)
+			<< std::string(faction)
+			<< std::string(game_type)
+			<< std::string(content_directory)
+			<< std::to_string(sabotaged_structure)
+			<< std::string(override_map_name);
+	}
+
+	
+
+	
 	if (game_type == NULL) {
 		return false;
 	}
@@ -1438,6 +1472,12 @@ bool Debug_Write_Shape(const char *file_name, void const * shapefile, int shapen
 **************************************************************************************************/
 extern "C" __declspec(dllexport) bool __cdecl CNC_Advance_Instance(uint64 player_id)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Advance_Instance") << std::to_string(std::time(0))
+			<< std::to_string(player_id);
+	}
+
 	//DLLExportClass::Set_Event_Callback(event_callback);
 	
 	InMainLoop = true;
@@ -1724,6 +1764,11 @@ extern "C" __declspec(dllexport) bool __cdecl CNC_Save_Load(bool save, const cha
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Set_Difficulty(int difficulty)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Set_Difficulty") << std::to_string(std::time(0))
+			<< std::to_string(difficulty);
+	}
 	if (GameToPlay == GAME_NORMAL) {
 		Set_Scenario_Difficulty(difficulty);
 	}
@@ -2718,6 +2763,13 @@ void DLLExportClass::Force_Human_Team_Wins(uint64 quitting_player_id)
 **************************************************************************************************/
 extern "C" __declspec(dllexport) bool __cdecl CNC_Get_Game_State(GameStateRequestEnum state_type, uint64 player_id, unsigned char *buffer_in, unsigned int buffer_size)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Get_Game_State") << std::to_string(std::time(0))
+			<< std::to_string(state_type)
+			<< std::to_string(player_id)
+			<< std::to_string(buffer_size);
+	}
 	bool got_state = false;
 
 	switch (state_type) {
@@ -3450,7 +3502,17 @@ void DLLExportClass::Convert_Type(const ObjectClass *object, CNCObjectStruct &ob
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Input(InputRequestEnum input_event, unsigned char special_key_flags, uint64 player_id, int x1, int y1, int x2, int y2)
 {
-	
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Handle_Input") << std::to_string(std::time(0))
+			<< std::to_string(input_event)
+			<< std::to_string(special_key_flags)
+			<< std::to_string(player_id)
+			<< std::to_string(x1)
+			<< std::to_string(y1)
+			<< std::to_string(x2)
+			<< std::to_string(y2);
+	}
 	if (!DLLExportClass::Set_Player_Context(player_id)) {
 		return;
 	}
@@ -3755,6 +3817,16 @@ extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Unit_Request(UnitReques
 **************************************************************************************************/
 extern "C" __declspec(dllexport) void __cdecl CNC_Handle_Sidebar_Request(SidebarRequestEnum request_type, uint64 player_id, int buildable_type, int buildable_id, short cell_x, short cell_y)
 {
+	if (event_output)
+	{
+		*events_out_archive << std::string("CNC_Handle_Sidebar_Request") << std::to_string(std::time(0))
+			<< std::to_string(request_type)
+			<< std::to_string(player_id)
+			<< std::to_string(buildable_type)
+			<< std::to_string(buildable_id)
+			<< std::to_string(cell_x)
+			<< std::to_string(cell_y);
+	}
 	if (!DLLExportClass::Set_Player_Context(player_id)) {
 		return;
 	}
@@ -5453,7 +5525,7 @@ bool DLLExportClass::Get_Shroud_State(uint64 player_id, unsigned char *buffer_in
 			CNCShroudEntryStruct &shroud_entry = shroud->Entries[entry_index];
 
 			shroud_entry.IsVisible = cellptr->Is_Visible(PlayerPtr);
-			shroud_entry.IsMapped = cellptr->Is_Mapped(PlayerPtr);
+			shroud_entry.IsMapped =  cellptr->Is_Mapped(PlayerPtr);
 			shroud_entry.IsJamming = false;
 			shroud_entry.ShadowIndex = -1;
 

@@ -50,19 +50,20 @@ extern "C" unsigned long RandNumb = 0x12349876;
 
 int IRandom(int minval, int maxval)
 {
-	int num,mask;
+	return maxval;
+	//int num,mask;
 
-	// Keep minval and maxval straight.
-	if (minval > maxval) {
-		minval ^= maxval;
-		maxval ^= minval;
-		minval ^= maxval;
-	}
+	//// Keep minval and maxval straight.
+	//if (minval > maxval) {
+	//	minval ^= maxval;
+	//	maxval ^= minval;
+	//	minval ^= maxval;
+	//}
 
-	mask = Get_Random_Mask(maxval - minval);
+	//mask = Get_Random_Mask(maxval - minval);
 
-	while( (num = (rand() & mask) + minval) > maxval ) ;
-	return(num);
+	//while( (num = (rand() & mask) + minval) > maxval ) ;
+	//return(num);
 }
 
 

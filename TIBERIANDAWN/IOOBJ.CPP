@@ -149,7 +149,7 @@
  *=============================================================================================*/
 bool TeamTypeClass::Load(FileClass & file)
 {
-	::new (this) TeamTypeClass();
+	::new TeamTypeClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractTypeClass), sizeof(*this), file, VTable));
@@ -249,7 +249,7 @@ void TeamTypeClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool TeamClass::Load(FileClass & file)
 {
-	::new (this) TeamClass();
+	::new TeamClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -383,7 +383,7 @@ void TeamClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool TriggerClass::Load(FileClass & file)
 {
-	::new (this) TriggerClass();
+	::new TriggerClass();
 	int rc = Read_Object(this, sizeof(*this), file, false);
 	
 	//int rc = Read_Object(this, sizeof(*this), sizeof(*this), file, 0);
@@ -488,7 +488,7 @@ void TriggerClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool AircraftClass::Load(FileClass & file)
 {
-	::new (this) AircraftClass();
+	::new AircraftClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -596,9 +596,9 @@ void AircraftClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool AnimClass::Load(FileClass & file)
 {
-	::new (this) AnimClass();
+	::new AnimClass();
 	return(Read_Object(this, sizeof(*this), file, true));
-	
+
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
 }
 
@@ -734,7 +734,7 @@ void AnimClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool BuildingClass::Load(FileClass & file)
 {
-	::new (this) BuildingClass();
+	::new BuildingClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -857,7 +857,7 @@ void BuildingClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool BulletClass::Load(FileClass & file)
 {
-	::new (this) BulletClass();
+	::new BulletClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -981,7 +981,7 @@ void BulletClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool InfantryClass::Load(FileClass & file)
 {
-	::new (this) InfantryClass();
+	::new InfantryClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1087,7 +1087,7 @@ void InfantryClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool OverlayClass::Load(FileClass & file)
 {
-	::new (this) OverlayClass();
+	::new OverlayClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1193,7 +1193,7 @@ void OverlayClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool SmudgeClass::Load(FileClass & file)
 {
-	::new (this) SmudgeClass();
+	::new SmudgeClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1299,7 +1299,7 @@ void SmudgeClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool TemplateClass::Load(FileClass & file)
 {
-	::new (this) TemplateClass();
+	::new TemplateClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1405,7 +1405,7 @@ void TemplateClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool TerrainClass::Load(FileClass & file)
 {
-	::new (this) TerrainClass();
+	::new TerrainClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1513,7 +1513,7 @@ void TerrainClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool UnitClass::Load(FileClass & file)
 {
-	::new (this) UnitClass();
+	::new UnitClass();
 	return(Read_Object(this, sizeof(*this), file, true));
 	
 	//return(Read_Object(this, sizeof(AbstractClass), sizeof(*this), file, VTable));
@@ -1602,7 +1602,7 @@ void UnitClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool FactoryClass::Load(FileClass & file)
 {
-	::new (this) FactoryClass();
+	::new FactoryClass();
 	return(Read_Object(this, sizeof(*this), file, false));
 	
 	//return(Read_Object(this, sizeof(StageClass), sizeof(*this), file, 0));
@@ -1848,7 +1848,7 @@ void LayerClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool HouseClass::Load(FileClass & file)
 {
-	::new (this) HouseClass();
+	::new HouseClass();
 	return(Read_Object(this, sizeof(*this), file, false));
 	
 	//return(Read_Object(this, sizeof(*this), sizeof(*this), file, 0));
@@ -1944,7 +1944,7 @@ void HouseClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool ScoreClass::Load(FileClass & file)
 {
-	::new (this) ScoreClass();
+	::new ScoreClass();
 	return(Read_Object(this, sizeof(*this), file, false));
 	
 	//return(Read_Object(this, sizeof(*this), sizeof(*this), file, 0));

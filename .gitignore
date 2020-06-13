@@ -1,0 +1,19 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/TIBERIANDAWN/Win32/Release
+/TIBERIANDAWN/TiberianDawn.vcxproj.user
+/REDALERT/Win32/Release
+/bin/Win32
+/.vs/CnCRemastered/v16
+/REDALERT/RedAlert.vcxproj.user
+/TIBERIANDAWN/Win32/Debug
+/TiberianDawn.Game/Debug
+/Debug
+/Release
+/CAndCDebugger/Debug
+/CAndCDebugger/Release
+/packages
+/TIBERIANDAWN/Debug
+/TIBERIANDAWN/Release

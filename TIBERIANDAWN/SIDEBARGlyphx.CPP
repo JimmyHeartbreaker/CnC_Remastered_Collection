@@ -707,7 +707,7 @@ void SidebarGlyphxClass::Decode_Pointers(void)
  *=============================================================================================*/
 bool SidebarGlyphxClass::Load(FileClass & file)
 {
-	::new (this) SidebarGlyphxClass();
+	::new SidebarGlyphxClass();
 
 	bool ok = Read_Object(this, sizeof(*this), file, false);
 

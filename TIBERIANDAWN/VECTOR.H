@@ -50,18 +50,9 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#ifndef false
-#define false 0
-#endif
-#ifndef true
-#define true 1
-#endif
-
 #include	<stdlib.h>
 #include	<stddef.h>
 
-inline void * operator new(size_t , void * pointer) {return(pointer);}
-inline void * operator new[](size_t , void * pointer) {return(pointer);}
 
 
 /**************************************************************************
@@ -461,7 +452,9 @@ VectorClass<T>::VectorClass(unsigned size, T const * array)
 	*/
 	if (size) {
 		if (array) {
-			Vector = new((void*)array) T[size];
+			//Vector = new((void*)array) T[size];
+			Vector = new T[size];
+			memcpy(Vector, array, size * sizeof(T));
 		} else {
 			Vector = new T[size];
 			IsAllocated = true;
@@ -697,7 +690,9 @@ int VectorClass<T>::Resize(unsigned newsize, T const * array)
 		if (!array) {
 			newptr = new T[newsize];
 		} else {
-			newptr = new((void*)array) T[newsize];
+			newptr = new T[newsize];
+			memcpy(newptr, array, newsize * sizeof(T));
+			
 		}
 		if (!newptr) {
 			return(false);
